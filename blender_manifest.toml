@@ -1,0 +1,21 @@
+schema_version = "1.0.0"
+
+id = "queue_version"
+version = "1.0.0"
+name = "Queue Version"
+tagline = "Save a stamped copy of the current file in the Renders folder"
+maintainer = "Nicolas Lemery Nantel"
+type = "add-on"
+
+blender_version_min = "5.1.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+tags = [
+  "System",
+]
+
+[permissions]
+files = "Read the stamp script and save copies in project folders"
