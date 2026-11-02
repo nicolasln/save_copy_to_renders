@@ -1,22 +1,26 @@
 import os
-import subprocess
+from datetime import datetime, timezone
 
 import bpy
 
 
-VERSIONSTAMP_SCRIPT = "/Users/nicolas/Code/scripts/versionstamp.py"
+ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+
+def base36(number):
+    result = ""
+    while number:
+        number, remainder = divmod(number, 36)
+        result = ALPHABET[remainder] + result
+    return result or "0"
 
 
 def get_versionstamp():
-    """Run versionstamp.py and return its output without surrounding whitespace."""
-    result = subprocess.run(
-        [VERSIONSTAMP_SCRIPT],
-        check=True,
-        capture_output=True,
-        text=True,
-        timeout=5,
-    )
-    return result.stdout.strip()
+    """Encode the current UTC year's elapsed 20-second intervals in Base36."""
+    now = datetime.now(timezone.utc)
+    epoch = datetime(now.year, 1, 1, tzinfo=timezone.utc)
+    value = int((now - epoch).total_seconds()) // 20
+    return base36(value).zfill(4)
 
 
 def versioned_copy_path(blend_filepath, stamp):
@@ -61,7 +65,7 @@ class WM_OT_save_versioned_copy(bpy.types.Operator):
                 check_existing=False,
                 copy=True,
             )
-        except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        except (OSError, RuntimeError) as error:
             self.report({"ERROR"}, f"Could not save versioned copy: {error}")
             return {"CANCELLED"}
 
