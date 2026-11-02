@@ -7,14 +7,18 @@ machine-specific path is required.
 
 The stamp encodes the elapsed 20-second intervals since January 1 of the current
 UTC year in uppercase Base36, padded to at least four characters. It is
-generated fresh on every save. Two saves in the same interval produce the same
-stamp; an existing versioned copy is never overwritten.
+generated fresh on every save. If a filename with that stamp already exists,
+the add-on advances the stamp one interval at a time until it finds an unused
+filename. This allows quick successive saves without overwriting earlier copies.
 
 For example:
 
 ```text
 ~/Desktop/file.blend → ~/Desktop/Renders/file LM4M.blend
 ```
+
+Saving again during the same interval creates `file LM4N.blend`, then
+`file LM4O.blend`, and so on, skipping any names that already exist.
 
 The working file remains open and unchanged. The command is disabled until the
 current file has been saved once. An existing versioned copy is never

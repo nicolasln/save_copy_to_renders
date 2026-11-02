@@ -53,12 +53,9 @@ class WM_OT_save_versioned_copy(bpy.types.Operator):
             destination = versioned_copy_path(source_filepath, stamp)
             os.makedirs(os.path.dirname(destination), exist_ok=True)
 
-            if os.path.exists(destination):
-                self.report(
-                    {"ERROR"},
-                    f"Versioned copy already exists: {destination}",
-                )
-                return {"CANCELLED"}
+            while os.path.exists(destination):
+                stamp = base36(int(stamp, 36) + 1).zfill(4)
+                destination = versioned_copy_path(source_filepath, stamp)
 
             result = bpy.ops.wm.save_as_mainfile(
                 filepath=destination,
