@@ -1,10 +1,8 @@
 # Save Copy to Renders
 
 Save Copy to Renders adds **Save Copy to Renders** to Blender's File menu and F3
-search. It saves a
-copy of the current `.blend` file in a `Renders` directory beside the working
-file and adds a timestamp generated within the add-on. No external script or
-machine-specific path is required.
+search. It saves a copy of the current `.blend` file in a `Renders` directory
+beside the working file and adds a timestamp generated within the add-on.
 
 If the current filename already ends in a timestamp, the add-on replaces that
 timestamp and saves the copy in the same directory instead. A timestamp is
@@ -33,10 +31,8 @@ overwritten.
 
 ## Installation
 
-In Blender 5.1 or newer, use Preferences → Get Extensions → Install from Disk
-to install the ZIP, then enable **Save Copy to Renders**. For a Local Dev
-repository, use the folder name `save_copy_to_renders` and refresh the
-repository before enabling the add-on.
+Requires Blender 5.1 or newer.
 
-Previously named **Queue Version**. Disable the old extension before enabling
-this one because the extension ID and operator name have changed.
+1. [Download the ZIP](https://github.com/nicolasln/save_copy_to_renders/archive/refs/heads/main.zip) and leave it zipped.
+2. Drag the ZIP from Finder (or File Explorer on Windows) into the Blender window and confirm the installation.
+3. Enable **Save Copy to Renders**.
