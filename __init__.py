@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, timezone
 
 import bpy
@@ -24,17 +25,25 @@ def get_versionstamp():
 
 
 def versioned_copy_path(blend_filepath, stamp):
-    """Return <blend directory>/Renders/<stem> <stamp>.blend."""
+    """Replace an existing stamp in place, or queue an unstamped file in Renders."""
     directory = os.path.dirname(os.path.abspath(blend_filepath))
     filename = os.path.basename(blend_filepath)
     stem, extension = os.path.splitext(filename)
-    return os.path.join(directory, "Renders", f"{stem} {stamp}{extension}")
+    base_stem, separator, old_stamp = stem.rpartition(" ")
+    if base_stem and separator and re.fullmatch(r"[0-9A-Z]{4,}", old_stamp):
+        stem = base_stem
+    else:
+        directory = os.path.join(directory, "Renders")
+    return os.path.join(directory, f"{stem} {stamp}{extension}")
 
 
-class WM_OT_save_versioned_copy(bpy.types.Operator):
-    bl_idname = "wm.save_versioned_copy"
-    bl_label = "Save Versioned Copy"
-    bl_description = "Save a stamped copy in the Renders folder beside the current blend file"
+class WM_OT_save_copy_to_renders(bpy.types.Operator):
+    bl_idname = "wm.save_copy_to_renders"
+    bl_label = "Save Copy to Renders"
+    bl_description = (
+        "Save a timestamped copy in the Renders folder. "
+        "Already timestamped files are versioned in their current folder"
+    )
     bl_options = {"REGISTER"}
 
     @classmethod
@@ -74,25 +83,25 @@ class WM_OT_save_versioned_copy(bpy.types.Operator):
         return {"FINISHED"}
 
 
-def draw_save_versioned_copy(self, _context):
+def draw_save_copy_to_renders(self, _context):
     self.layout.operator(
-        WM_OT_save_versioned_copy.bl_idname,
-        text="Save Versioned Copy",
+        WM_OT_save_copy_to_renders.bl_idname,
+        text="Save Copy to Renders",
     )
 
 
-classes = (WM_OT_save_versioned_copy,)
+classes = (WM_OT_save_copy_to_renders,)
 
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.types.TOPBAR_MT_file.append(draw_save_versioned_copy)
+    bpy.types.TOPBAR_MT_file.append(draw_save_copy_to_renders)
 
 
 def unregister():
-    bpy.types.TOPBAR_MT_file.remove(draw_save_versioned_copy)
+    bpy.types.TOPBAR_MT_file.remove(draw_save_copy_to_renders)
 
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)

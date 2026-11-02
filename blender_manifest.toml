@@ -1,9 +1,9 @@
 schema_version = "1.0.0"
 
-id = "queue_version"
-version = "1.2.0"
-name = "Queue Version"
-tagline = "Save a stamped copy of the current file in the Renders folder"
+id = "save_copy_to_renders"
+version = "1.4.0"
+name = "Save Copy to Renders"
+tagline = "Save timestamped copies and create new versions of render files"
 maintainer = "Nicolas Lemery Nantel"
 type = "add-on"
 
