@@ -1,0 +1,70 @@
+name: Release add-on
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Validate and package add-on
+        id: package
+        run: |
+          python3 - <<'PY'
+          import ast
+          import os
+          import re
+          import tomllib
+          import zipfile
+          from pathlib import Path
+
+          manifest = tomllib.loads(Path('blender_manifest.toml').read_text())
+          version = manifest['version']
+          if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
+              raise SystemExit('Release version must have the form X.Y.Z')
+          if os.environ['GITHUB_REF_NAME'] != f'v{version}':
+              raise SystemExit('Tag must match the version in blender_manifest.toml')
+          if manifest['id'] != 'save_copy_to_renders':
+              raise SystemExit('Unexpected extension ID')
+          ast.parse(Path('__init__.py').read_text())
+
+          files = ('blender_manifest.toml', '__init__.py', 'README.md')
+          asset = Path('dist') / f'{manifest["id"]}-{version}.zip'
+          asset.parent.mkdir(exist_ok=True)
+          with zipfile.ZipFile(asset, 'w', zipfile.ZIP_DEFLATED) as archive:
+              for name in files:
+                  archive.write(name, name)
+          with zipfile.ZipFile(asset) as archive:
+              if archive.testzip() is not None or archive.namelist() != list(files):
+                  raise SystemExit('ZIP verification failed')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print(f'asset={asset}', file=output)
+          print(f'Built {asset}')
+          PY
+
+      - name: Publish release with install ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          ASSET_PATH: ${{ steps.package.outputs.asset }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$ASSET_PATH" \
+            --verify-tag \
+            --title "Save Copy to Renders $GITHUB_REF_NAME" \
+            --generate-notes \
+            --latest

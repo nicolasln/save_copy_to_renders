@@ -33,6 +33,6 @@ overwritten.
 
 Requires Blender 5.1 or newer.
 
-1. [Download the ZIP](https://github.com/nicolasln/save_copy_to_renders/archive/refs/heads/main.zip) and leave it zipped.
+1. Download the add-on ZIP from the [latest release](https://github.com/nicolasln/save_copy_to_renders/releases/latest) and leave it zipped.
 2. Drag the ZIP from Finder (or File Explorer on Windows) into the Blender window and confirm the installation.
 3. Enable **Save Copy to Renders**.
